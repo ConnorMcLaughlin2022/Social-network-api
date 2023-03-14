@@ -22,4 +22,55 @@ module.exports = {
       .then((dbUserData) => res.json(dbUserData))
       .catch((err) => res.status(500).json(err));
   },
+  updateUser(req, res) {
+    User.findOneAndUpdate({_id: req.params.userId}, 
+      {$set: req.body,})
+      .then((user) => !user
+      ? res.status(404).json({ message: 'No thought with that ID'})
+      : res.json(thought)
+      )
+      
+  },
+  // delete User
+  deleteUser(req,res) {
+    User.findOne({ _id: req.params.userId })
+    .then((user) =>
+    !user
+    ? res.status(404).json({ message: 'No user with that ID'})
+    : res.json(user))
+    .catch((err) => {
+        console.log
+        res.status(500).json(err)}
+    );
+  },
+
+  // add Friends
+  addFriend(req,res) {
+    User.findOneAndUpdate(
+      {_id: req.params.userId}, 
+      {$addToSet: {friends: req.params.friendId}},
+      {new: true}
+      )
+    .then((user) => 
+    !user
+    ? res.status(404).json({ message: 'No user with that ID'})
+    : res.json(user))
+    .catch((err) => {
+        console.log
+        res.status(500).json(err)})
+},
+
+// delete friend
+deleteFriend(req,res){
+    User.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: {friends: {friendId: req.params.friendId}}},
+    )
+      .then((user) => 
+    !user
+    ? res.status(404).json({ message: 'No user with that ID'})
+    : res.json(user))
+    .catch((err) => res.status(500).json(err)) 
+}
+
 };

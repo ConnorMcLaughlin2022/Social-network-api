@@ -22,7 +22,7 @@ module.exports = {
           .then((thought) => {
             return User.findOneAndUpdate(
                 { _id: req.body.userId },
-                { $addToSet: { thought: thought._id } },
+                { $addToSet: { thoughts: thought._id } },
                 { new: true }
               );
             })
@@ -59,5 +59,53 @@ module.exports = {
         !thought
         ? res.status(404).json({ message: 'No thought with that ID'})
         : Thought.deleteMany({ _id: req.params.thouhtId}))
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json(err);
+      });
     },
-}
+
+    // reactions
+
+    addReaction(req,res) {
+      Thought.findOneAndUpdate(
+          { _id: req.params.thoughtId },
+          { $addToSet: {reactions: req.body } }
+      
+      )
+      .then((thought) =>
+      !thought
+      ? res.status(404).json({ message: 'No thought with this id!' })
+      : res.json(thought)
+      )
+      .catch((err) => res.status(500).json(err));
+      },
+      // update
+      updateReaction(req,res){
+        Reaction.findOneAndUpdate(
+          {_id: req.params.reactionId},
+          { $set: req.body },
+      
+        )  
+        .then((thought) =>
+        !thought
+        ? res.status(404).json({ message: 'No thought with this id!' })
+        : res.json(thought)
+        )
+        .catch((err) => res.status(500).json(err));
+      },
+      // delete reaction
+      deleteReaction(req,res){
+          Thought.findOneAndUpdate(
+              { _id: req.params.thoughtId },
+              { $pull: { reactions: { reactionId: req.params.reactionId } } },
+          
+            )
+              .then((thought) =>
+                !thought
+                  ? res.status(404).json({ message: 'No thought with this id!' })
+                  : res.json(thought)
+              )
+              .catch((err) => res.status(500).json(err));
+          },
+      };
